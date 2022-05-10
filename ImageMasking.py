@@ -13,7 +13,7 @@ from rasterio.plot import show
 
 import numpy as np
 
-W,H = 400,200
+W,H = 45 0,200
 
 WINDOW = Tk()
 WINDOW.geometry('+10+10') #window starting from 10,10
@@ -98,10 +98,10 @@ imageButton.place(x=10,y=10)
 shpButton = Button(WINDOW,text='Add shape file',style='W.TButton',command=openShp)
 shpButton.place(x=10,y=50)
 
-calculate_btn = Button(WINDOW,text='Mask Image',style='W.TButton',command=maskImage)
+calculate_btn = Button(WINDOW,text='Mask Image',style='W.TButton',command=maskImage,state="DISABLED")
 calculate_btn.place(x=10,y=100)
 
-compare_btn = Button(WINDOW,text='Compare Images',style='W.TButton',command=plotImages)
+compare_btn = Button(WINDOW,text='Compare Images',style='W.TButton',command=plotImages, state="DISABLED")
 compare_btn.place(x=10,y=150)
 
 WINDOW.mainloop()
