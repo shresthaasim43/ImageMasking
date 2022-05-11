@@ -2,6 +2,9 @@ from tkinter import *
 from tkinter.ttk import * 
 from tkinter.filedialog import askopenfilename, asksaveasfilename
 
+
+  
+# This method will show image in any image view
 from functools import partial
 import matplotlib
 import matplotlib.pyplot as plt
@@ -10,10 +13,11 @@ import fiona
 import rasterio
 import rasterio.mask
 from rasterio.plot import show
+from descartes import PolygonPatch
 
 import numpy as np
 
-W,H = 45 0,200
+W,H = 450,200
 
 WINDOW = Tk()
 WINDOW.geometry('+10+10') #window starting from 10,10
@@ -25,6 +29,7 @@ style = Style()
 style.configure('W.TButton', font =('calibri', 12, 'bold', 'underline'), 
                foreground = 'blue', borderwidth = '4', height=5, width=15) 
 
+
 def openImage():
     global tif_filePath, tif_fileName
     tif_filePath = askopenfilename(initialdir = "/",title = "Select file",
@@ -32,24 +37,23 @@ def openImage():
     temp2 = tif_filePath.split('/')[-1]
     tif_fileName = temp2.split('.')[0]
     label1 = Label(WINDOW, text = tif_filePath).place(x = 150, y = 15)
-
     
 def openShp():
-    global shapeFilepath, shapeFileName
-    shapeFilepath =  askopenfilename(initialdir = "",title = "Select file",
+    global shapeFilePath, shapeFileName
+    shapeFilePath =  askopenfilename(initialdir = "",title = "Select file",
                         filetypes = (("all files","*.*"),("tif images","*.tif")))
-    temp = shapeFilepath.split('/')[-1]
+    temp = shapeFilePath.split('/')[-1]
     shapeFileName = temp.split('.')[0]
     
-    label2= Label(WINDOW, text = shapeFilepath).place(x = 150, y = 50)
+    label2= Label(WINDOW, text = shapeFilePath).place(x = 150, y = 50)
 
 def maskImage():
-    global clippedImage
+    global saveFilePath
     saveFilePath = asksaveasfilename()
     if '.tif' not in saveFilePath:
         saveFilePath += '.tif'
 
-    with fiona.open(shapeFilepath)as shapefile:
+    with fiona.open(shapeFilePath)as shapefile:
         shapes=[feature["geometry"] for feature in shapefile]
 
     with rasterio.open(tif_filePath) as src:
@@ -63,29 +67,22 @@ def maskImage():
 
 
 def plotImages():
-    fig = plt.figure(figsize=(10, 7))
-    # setting values to rows and column variables
-    rows = 1
-    columns = 2
+    image1=rasterio.open(tif_filePath) 
+    #image1.show()
+    image2=rasterio.open(saveFilePath)
+    #image2.show()
+    with fiona.open(shapeFilePath, "r") as shapefile:
+        features = [feature["geometry"] for feature in shapefile]
     
-    # reading images
-    #Image1 = rasterio.open(tif_filePath).read(1)
-    #Image2 = rasterio.open("C:\Users\Bijay\Desktop\Py'\mas.tif").read(1)
-    
-    # Adds a subplot at the 1st position
-    fig.add_subplot(rows, columns, 1)
-    # showing image
-    plt.imshow(Image1)
-    plt.axis('off')
-    plt.title("Unclipped Image")
+    patches = [PolygonPatch(feature, edgecolor="red", facecolor="none", linewidth=2) for feature in features]
    
-    # Adds a subplot at the 2nd position
-    fig.add_subplot(rows, columns, 2)
     
-    # showing image
-    plt.imshow(Image1)
-    plt.axis('off')
-    plt.title("Clipped Image")
+    fig, (axr, axg) = plt.subplots(1,2, figsize=(21,7))
+    show((image1, 1), ax=axr, title='Unmasked imagery and shape file')
+    show((image2, 1), ax=axg, title='Masked Imagery')
+    axr.add_collection(matplotlib.collections.PatchCollection(patches,match_original=True))
+    
+    plt.show()
     
 
 BUTTON_CANVAS = Canvas(WINDOW,width=W,height=H)
