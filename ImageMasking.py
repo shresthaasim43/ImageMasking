@@ -5,7 +5,7 @@ from tkinter.filedialog import askopenfilename, asksaveasfilename
 
   
 # This method will show image in any image view
-from functools import partial
+#from functools import partial
 import matplotlib
 import matplotlib.pyplot as plt
 
@@ -15,10 +15,12 @@ import rasterio.mask
 from rasterio.plot import show
 from descartes import PolygonPatch
 
-import numpy as np
 
-W,H = 450,200
+#import numpy as np
 
+W,H = 500,200
+
+global WINDOW
 WINDOW = Tk()
 WINDOW.geometry('+10+10') #window starting from 10,10
 WINDOW.geometry('{}x{}'.format(W,H)) #set the geomentry of WINDOW
@@ -65,6 +67,9 @@ def maskImage():
     with rasterio.open(saveFilePath, "w", **out_meta) as dest:
         dest.write(out_image)
 
+    
+    label2= Label(WINDOW, text ="Masked Successfully").place(x = 155, y = 100)
+
 
 def plotImages():
     image1=rasterio.open(tif_filePath) 
@@ -77,11 +82,12 @@ def plotImages():
     patches = [PolygonPatch(feature, edgecolor="red", facecolor="none", linewidth=2) for feature in features]
    
     
-    fig, (axr, axg) = plt.subplots(1,2, figsize=(21,7))
-    show((image1, 1), ax=axr, title='Unmasked imagery and shape file')
-    show((image2, 1), ax=axg, title='Masked Imagery')
+    fig, (axr, axg) = plt.subplots(1,2, figsize=(14,7))
+    show((image1, 1), ax=axr,cmap='Greens', title='Unmasked Imagery')
+    show((image2, 1), ax=axg,cmap='Greens',title='Masked Imagery')
     axr.add_collection(matplotlib.collections.PatchCollection(patches,match_original=True))
-    
+    axg.add_collection(matplotlib.collections.PatchCollection(patches,match_original=True))
+  
     plt.show()
     
 
@@ -98,7 +104,7 @@ shpButton.place(x=10,y=50)
 calculate_btn = Button(WINDOW,text='Mask Image',style='W.TButton',command=maskImage,state="DISABLED")
 calculate_btn.place(x=10,y=100)
 
-compare_btn = Button(WINDOW,text='Compare Images',style='W.TButton',command=plotImages, state="DISABLED")
+compare_btn = Button(WINDOW,text='Plot Results',style='W.TButton',command=plotImages, state="DISABLED")
 compare_btn.place(x=10,y=150)
 
 WINDOW.mainloop()
